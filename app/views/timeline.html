@@ -1,0 +1,14 @@
+
+<div class="timeline">
+	
+	<ul class="line">
+		<li ng-repeat="period in periods" style="width:{{100/periods.length}}%" ng-class="{selected: $index==selectedIndex}" ng-click="select(period)"></li>
+	</ul>
+
+	<ul class="labels">
+		<li ng-repeat="period in periods" style="width:{{100/periods.length}}%" ng-click="select(period)">{{period}}</li>
+	</ul>
+
+	<span class="clearfix"></span>
+
+</div>
