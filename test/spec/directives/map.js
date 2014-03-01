@@ -12,6 +12,7 @@ describe('Directive: map', function () {
     scope = $rootScope.$new();
   }));
 
+
   /*
   it('should make hidden element visible', inject(function ($compile) {
     element = angular.element('<map></map>');
@@ -19,5 +20,10 @@ describe('Directive: map', function () {
     expect(element.text()).toBe('this is the map directive');
   }));
   */
+
+
+
+
+
 
 });

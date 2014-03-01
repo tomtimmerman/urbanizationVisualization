@@ -11,8 +11,10 @@ describe('Service: D3', function () {
     D3 = _D3_;
   }));
 
+  /*
   it('should do something', function () {
     expect(!!D3).toBe(true);
   });
+  */
 
 });
