@@ -24,7 +24,7 @@ describe('Service: Dataset', function () {
 
     var receivedData;
     Dataset.getData().then(function(promise) {
-      receivedData = promise.data;
+      receivedData = promise;
     });
 
     $httpBackend.flush();
