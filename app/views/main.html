@@ -2,17 +2,17 @@
 <div class="content-wrapper" ng-controller="MainCtrl">
 
   <div>
-    <select>
-      <option value="1">Increase in urban population</option>
-      <option value="2">Change in urbanization rate</option>
-      <option value="3">Percentage of people living in urban area</option>
+    <select ng-model="dataProperty">
+      <option value="uPopIncrease">Increase in urban population</option>
+      <option value="uGrowth">Change in urbanization rate</option>
+      <option value="urbanization">Percentage of people living in urban area</option>
+      <option value="uGrowth">Growth of the urban population</option>
     </select>
   </div>
 
   <timeline periods=periods at=selectedPeriod></timeline>
 
-  <map dataset=dataset></map>
-  
+  <map dataset=periodData width=mapWidth height=mapHeight display=dataProperty></map>
 
   <div>
     accountability

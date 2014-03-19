@@ -43,20 +43,20 @@ describe('Controller: MainCtrl', function () {
 
   describe('Data validation:', function() {
 
-    it('should call getData on the Dataset service when init is called', inject(function ($compile) {
+    it('should call getData on the Dataset service when init is called', function () {
       spyOn(Dataset, 'getData').andCallThrough();
       scope.init();
       deferred.resolve({'test': 'test'}); // resolve promise
       scope.$root.$digest();
       expect(Dataset.getData).toHaveBeenCalled();
-    }));
+    });
 
-    it('should get an error if received data is not an array', inject(function ($compile) {
+    it('should get an error if received data is not an array', function () {
       scope.init();
       deferred.resolve({'test': 'test'}); // resolve promise
       scope.$root.$digest();
       expect(scope.errors).toEqual([{'error': 100, 'message': 'Data is not an array!'}]);
-    }));
+    });
 
     it('should get an error if array items dont have a period property', function () {
       scope.init();

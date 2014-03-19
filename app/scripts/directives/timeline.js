@@ -12,7 +12,8 @@ angular.module('urbanizationVisualizationApp')
 				at: '=at'
 			},
 			
-      link: function (scope, element, attrs) {
+      //link: function (scope, element, attrs) {
+      link: function (scope, element) {
         //element.text('this is the timeline directive');
 
 
@@ -21,6 +22,7 @@ angular.module('urbanizationVisualizationApp')
 				// 
 				scope.select = function(value) {
 					scope.selectedIndex = scope.periods.indexOf(value);
+					scope.at = value; // return selected period to main controller
 				};
 
 
