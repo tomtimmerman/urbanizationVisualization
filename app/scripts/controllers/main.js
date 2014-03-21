@@ -9,8 +9,6 @@ angular.module('urbanizationVisualizationApp')
     $scope.dataset = []; // complete dataset
     $scope.periodData = []; // data of the selected period
     $scope.errors = []; // array of errors
-    $scope.mapWidth = 1000;
-    $scope.mapHeight = 450;
     $scope.dataProperty = 'urbanization'; // default value
 
 
