@@ -15,8 +15,16 @@ angular.module('urbanizationVisualizationApp')
         //element.text('this is the map directive');
 
 
+        /*
+        draw map
+          selected country > stroke color
+        zoom functie?????? >> hoe poitioneren van tooltip?
+        */
 
-        var projection, svg, path, countries, loading, details, legend; // map vars
+
+
+        // declare map variables
+        var projection, svg, path, countries, loading, details, legend; 
 
         // init map dimentions
         var margin = {top: 10, left: 10, bottom: 10, right: 10},
@@ -25,9 +33,10 @@ angular.module('urbanizationVisualizationApp')
             mapRatio = .45,
             height = width * mapRatio;
 
-        
-        
 
+
+
+        //
         scope.init = function() {
           var error = [];
 
@@ -47,88 +56,13 @@ angular.module('urbanizationVisualizationApp')
               element.append('<span class="error">'+error[i].message+'</span>');
             }
           }
-          
-
         };
         
 
-
-
-
-
-
-        scope.$watch('dataset', function (value) {
-          console.log(value);
-
-          if(value.length > 0) { // check if there is any data
-            //console.log(scope.getDimensions());
-            //element.find('svg').remove(); // removes the current map
-            scope.drawMap();
-          }
-
-
-        });
-
-
-        scope.$watch('display', function (value) {
-          //console.log(value);
-
-
-          if(value.length > 0 && scope.dataset.length > 0) { 
-            //console.log(scope.getDimensions());
-            //element.find('svg').remove(); // removes the current map
-            scope.drawMap();
-          }
-
-        });
-
-
-
-
-
-
-        
-
-
-
-
-
-
-        // calculate color scale
-
-        // draw map
-          // selected country > stroke color
-
-        // draw legend
-
-        // draw tooltip?
-        // zoom functie?????? >> hoe poitioneren van tooltip?
-
-
-
-
-
-
-
-
         // returns the dimensions of the dataset
-        scope.getDimensions = function() {
-          /*
-          var values = [];
-          for (var i = scope.dataset.length - 1; i >= 0; i--) {
-            if(scope.dataset[i][scope.display] !== null) {
-              values.push(scope.dataset[i][scope.display]);
-            }
-          }
-          values.sort(); // sort array
-
-          //console.log(values);
-          //console.log('min: '+values[0]+' max: '+values[values.length-1]);
-
-          return {'min': values[0], 'max': values[values.length-1]};
-          */
+         function getDimensions() {
           var min = null,
-            max = null;
+              max = null;
 
           for (var i = scope.dataset.length - 1; i >= 0; i--) {
             if(scope.dataset[i][scope.display] !== null) {
@@ -136,30 +70,24 @@ angular.module('urbanizationVisualizationApp')
               if(scope.dataset[i][scope.display] > max || max === null) max = scope.dataset[i][scope.display];
             }
           }
-
-          //console.log({'min': min, 'max': max});
           return {'min': min, 'max': max};
-
         };
 
 
         // returns the display value of the country
-        scope.getValue = function(id, type) { // id is country id
+        function getValue(id, type) { // id is country id
           var returnValue = null;
           for (var i = scope.dataset.length - 1; i >= 0; i--) {
             if(scope.dataset[i].cid === id) {
               returnValue = scope.dataset[i][type];
             }
           }
-
-          //console.log('getValue: '+returnValue+' : '+scope.display);
-
           return returnValue;
         };
 
 
         // returns the name of the country
-        scope.getName = function(id) { // id is country id
+        function getName(id) { // id is country id
           var returnValue = null;
           for (var i = scope.dataset.length - 1; i >= 0; i--) {
             if(scope.dataset[i].cid === id) {
@@ -171,8 +99,7 @@ angular.module('urbanizationVisualizationApp')
 
 
         // return the category of the provided value
-        scope.getScaleCategory = function(value) {
-
+        function getScaleCategory(value) {
           var returnValue = 0;
           /*
           var numberOfCategories = 5;
@@ -194,27 +121,41 @@ angular.module('urbanizationVisualizationApp')
           //console.log(returnValue+' : '+value);
           */
 
-
-
           //console.log(scope.getDimensions());
 
           var scale = d3.scale.linear()
-            //.domain([1, 6])
-            //.range([scope.getDimensions().min,scope.getDimensions().max]);
-            .domain([scope.getDimensions().min,scope.getDimensions().max])
+            .domain([getDimensions().min,getDimensions().max])
             .range([1, 6]);
 
           returnValue = Math.round(scale(value));
-
-          //console.log(value+' : '+scope.getDimensions().max);
-          //console.log(returnValue);
-
           return returnValue;
         };
 
 
+        // resize the svg map
+        function resize() {
+            // adjust things when the window size changes
+            width = parseInt(d3.select('#map').style('width'));
+            width = width - margin.left - margin.right;
+            height = width * mapRatio;
+
+            // update projection
+            projection
+                .translate([width / 2, height / 2])
+                .scale(width/6.2);
+
+            // resize the map container
+            svg
+                .style('width', width + 'px')
+                .style('height', height + 'px');
+
+            // resize the map
+            svg.selectAll('path').attr('d', path);
+        }
+
+
         //
-        scope.initMap = function() {
+        function initMap() {
           projection = d3.geo.equirectangular()
             .center([6,17])
             //.rotate([0,0])
@@ -237,7 +178,7 @@ angular.module('urbanizationVisualizationApp')
 
 
         //
-        scope.drawMap = function() {  
+        function drawMap() {  
           // show loading screen
           loading.attr('style','display: inherit;');
 
@@ -256,16 +197,12 @@ angular.module('urbanizationVisualizationApp')
                   return 'country'+d.id;
                 })
                 .attr('class', function(d) {
-                  return 'category'+scope.getScaleCategory(scope.getValue(d.id,scope.display));
+                  return 'category'+getScaleCategory(getValue(d.id,scope.display));
                 })
                 .on("mouseover", function(d){
-                  //return tooltip.style("visibility", "visible");
-                  //scope.drawDetails(d.id);
-                  scope.drawDetails(d);
+                  drawDetails(d);
                 })
                 .on("mouseout", function(d){
-                  //return tooltip.style("visibility", "visible");
-                  //details.selectAll('rect').remove();
                   details.selectAll('g').remove();
                 });
           });
@@ -276,9 +213,7 @@ angular.module('urbanizationVisualizationApp')
 
 
         //
-        scope.drawDetails = function(d) {
-          //console.log(d.id);
-
+        function drawDetails(d) {
           var c = d3.select('#country'+d.id);
           var center = path.centroid(d); // get the center of the path
           var x = center[0];
@@ -306,7 +241,7 @@ angular.module('urbanizationVisualizationApp')
             .attr('dy', y+(lineHeight*line))
             .attr('style', 'fill: '+fontColor+'; stroke: none; font-size: '+fontSize+'px;')
             .attr('text-anchor', 'start')
-            .text(scope.getName(d.id));
+            .text(getName(d.id));
 
           // total population
           line++;
@@ -315,7 +250,7 @@ angular.module('urbanizationVisualizationApp')
             .attr('dy', y+(lineHeight*line))
             .attr('style', 'fill: '+fontColor+'; stroke: none; font-size: '+fontSize+'px;')
             .attr('text-anchor', 'start')
-            .text('Total population: ' + scope.getValue(d.id,'pop') + '');
+            .text('Total population: ' + getValue(d.id,'pop') + '');
 
           // urban population
           line++;
@@ -324,7 +259,7 @@ angular.module('urbanizationVisualizationApp')
             .attr('dy', y+(lineHeight*line))
             .attr('style', 'fill: '+fontColor+'; stroke: none; font-size: '+fontSize+'px;')
             .attr('text-anchor', 'start')
-            .text('Urban population: ' + scope.getValue(d.id,'uPop') + ' (' + scope.getValue(d.id,'urbanization') + '%)');
+            .text('Urban population: ' + getValue(d.id,'uPop') + ' (' + getValue(d.id,'urbanization') + '%)');
 
           // urbanization population growth
           line++;
@@ -333,7 +268,7 @@ angular.module('urbanizationVisualizationApp')
             .attr('dy', y+(lineHeight*line))
             .attr('style', 'fill: '+fontColor+'; stroke: none; font-size: '+fontSize+'px;')
             .attr('text-anchor', 'start')
-            .text('Change in urbanization rate: ' + scope.getValue(d.id,'uGrowth') + '%');
+            .text('Change in urbanization rate: ' + getValue(d.id,'uGrowth') + '%');
 
           // urban population increase
           line++;
@@ -342,21 +277,19 @@ angular.module('urbanizationVisualizationApp')
             .attr('dy', y+(lineHeight*line))
             .attr('style', 'fill: '+fontColor+'; stroke: none; font-size: '+fontSize+'px;')
             .attr('text-anchor', 'start')
-            .text('Urban pop. increase: ' + scope.getValue(d.id,'uPopIncrease') + '');
-
-
+            .text('Urban pop. increase: ' + getValue(d.id,'uPopIncrease') + '');
 
         };
 
 
         //
-        scope.drawLegend = function() {
+        function drawLegend() {
 
         };
 
 
         //
-        scope.drawLoading = function() {
+        function drawLoading() {
           // draw background rectangle
           var rectangle = loading.append('rect')
             .attr('x', 0)
@@ -374,39 +307,36 @@ angular.module('urbanizationVisualizationApp')
         };
 
 
-        
-        // resize the svg map
-        function resize() {
-            // adjust things when the window size changes
-            width = parseInt(d3.select('#map').style('width'));
-            width = width - margin.left - margin.right;
-            height = width * mapRatio;
-
-            // update projection
-            projection
-                .translate([width / 2, height / 2])
-                .scale(width/6.2);
-
-            // resize the map container
-            svg
-                .style('width', width + 'px')
-                .style('height', height + 'px');
-
-            // resize the map
-            svg.selectAll('path').attr('d', path);
-        }
-        
-
 
 
 
         scope.init();
 
-        scope.initMap();
+        initMap();
 
-        scope.drawLoading();
+        drawLoading();
 
+
+
+        
+        /*
+        EVENTS
+        */
         d3.select(window).on('resize', resize); //  on resize window event, resize the svg map
+
+        scope.$watch('dataset', function (value) {
+          //console.log(value);
+          if(value.length > 0) { // check if there is any data
+            drawMap();
+          }
+        });
+
+        scope.$watch('display', function (value) {
+          //console.log(value);
+          if(value.length > 0 && scope.dataset.length > 0) { 
+            drawMap();
+          }
+        });
 
 
 

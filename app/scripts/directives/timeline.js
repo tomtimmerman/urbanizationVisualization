@@ -41,11 +41,12 @@ angular.module('urbanizationVisualizationApp')
         });
 
 
+        /*
 				scope.$watch('selectedIndex', function (value) {
 					//element.slider('option', 'max', value);
-					console.log(value);
+					//console.log(value);
 				});
-
+				*/
 
 
       }

@@ -25,6 +25,18 @@ angular.module('urbanizationVisualizationApp')
     $scope.init();
 
 
+
+
+    // update datset when selected period is changed
+		$scope.$watch('selectedPeriod', function (value) {
+			//console.log(value);
+			$scope.periodData = getPeriodData(value, $scope.dataset); // get the data of the selected period
+		});
+
+
+
+
+
     // returns the data of the provided period
     var getPeriodData = function(period, dataset) {
 			var data = {};
