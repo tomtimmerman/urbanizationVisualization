@@ -23,7 +23,7 @@ describe('Directive: map', function () {
 
 
 
-  //element.scope().dataset
+  
 
 
   it('should show error if directive has no dataset attribute', inject(function ($compile) {
@@ -43,7 +43,7 @@ describe('Directive: map', function () {
 
 
 
-
+/*
 
   it('should return the dimensions of the data', inject(function ($compile) {
     element = angular.element('<map dataset="[{val:4},{val:9},{val:3},{val:3},{val:5}]" display="val"></map>');
@@ -76,7 +76,7 @@ describe('Directive: map', function () {
     //expect(s.getDimensions()).toEqual({min:3, max:9});
   }));
 
-
+*/
 
 
 
