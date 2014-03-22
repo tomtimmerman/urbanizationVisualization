@@ -20,9 +20,6 @@ angular.module('urbanizationVisualizationApp')
         - min en max value van hele dataset nemen niet alleen per jaar???
         
         - legenda?
-
-        - draw map
-          - selected country > stroke color
         
         - zoom functie?????? >> hoe poitioneren van tooltip?
         

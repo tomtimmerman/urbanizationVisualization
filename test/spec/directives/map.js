@@ -99,6 +99,7 @@ describe('Directive: map', function () {
 
   Test user intaction:
     click on country
+    on mouse over country
 
 
   */
