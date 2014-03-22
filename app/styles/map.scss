@@ -5,6 +5,11 @@ path {
   fill: #a1a1a1;
 }
 
+path.selected {
+	stroke: red;
+	stroke-width: 1px;
+}
+
 .category1 {
 	fill: #eff3ff;	
 }
@@ -41,8 +46,14 @@ path {
 
 
 /* country details */
-.details {
-	fill: #d3d3d3;
-  stroke: #f5f5f5;
-  stroke-width: 0.25;
+.country-details {
+	text {
+		fill: #5e686b;
+		stroke: none;
+	}
+
+	.title {
+		font-weight: bold;
+	}
+
 }

@@ -16,10 +16,18 @@ angular.module('urbanizationVisualizationApp')
 
 
         /*
-        draw map
-          selected country > stroke color
-        zoom functie?????? >> hoe poitioneren van tooltip?
-        bij negatieve groei rood kleuren?
+
+        - min en max value van hele dataset nemen niet alleen per jaar???
+        
+        - legenda?
+
+        - draw map
+          - selected country > stroke color
+        
+        - zoom functie?????? >> hoe poitioneren van tooltip?
+        
+        - bij negatieve groei rood kleuren?
+
         */
 
 
@@ -102,32 +110,9 @@ angular.module('urbanizationVisualizationApp')
         // return the category of the provided value
         function getScaleCategory(value) {
           var returnValue = 0;
-          /*
-          var numberOfCategories = 5;
-          var roundTo = 5; // round to multiplicity of this number
-          var min = scope.getDimensions().min; // get minimum value
-          var max = scope.getDimensions().max; // get maximum value
-
-          console.log('min: '+min+' max: '+max);
-
-          min = Math.floor(min/roundTo)*roundTo; // rounded minimum
-          max = Math.ceil(max/roundTo)*roundTo; // rounded maximum
-          var categoryRange = (max-min)/numberOfCategories; // the width of the range
-
-          if(value !== null) { // check if value isn't null
-            returnValue = Math.ceil(value/categoryRange); // calculate the category of the value
-          }
-
-          console.log('range: '+categoryRange+' min: '+min+' max: '+max);
-          //console.log(returnValue+' : '+value);
-          */
-
-          //console.log(scope.getDimensions());
-
           var scale = d3.scale.linear()
             .domain([getDimensions().min,getDimensions().max])
             .range([1, 6]);
-
           returnValue = Math.round(scale(value));
           return returnValue;
         };
@@ -172,7 +157,8 @@ angular.module('urbanizationVisualizationApp')
 
           // add groups
           countries = svg.append('g'); // group that contains all country paths
-          details = svg.append('g'); // group that contains the country details
+          details = svg.append('g') // group that contains the country details
+            .attr('class', 'country-details');
           legend = svg.append('g'); // group that contains the legend
           loading = svg.append('g'); // group that contains the loading screen
         };
@@ -201,10 +187,31 @@ angular.module('urbanizationVisualizationApp')
                   return 'category'+getScaleCategory(getValue(d.id,scope.display));
                 })
                 .on("mouseover", function(d){
-                  drawDetails(d);
+                  details.attr('style','display: inherit;');
+                  updateDetails(d.id);
                 })
                 .on("mouseout", function(d){
-                  details.selectAll('g').remove();
+                  // check if a country was selected
+                  if(countries.select('.selected').empty()) {
+                    details.attr('style','display: none;'); // no country was selected
+                  } else {
+                    updateDetails(parseInt(countries.select('.selected').attr('id').replace('country',''))); // display details of selected country
+                  }
+                })
+                .on("click", function(d){
+                  // remove existing selection
+                  countries.select('.selected')
+                    .attr('class', function(d) {
+                      return 'category'+getScaleCategory(getValue(d.id,scope.display));
+                    });
+
+                  // add selected class
+                  var currentClass = countries.select('#country'+d.id).attr('class');
+                  countries.select('#country'+d.id)
+                    .attr('class', currentClass+' selected');
+
+                  // update details
+                  updateDetails(d.id);
                 });
           });
 
@@ -213,73 +220,104 @@ angular.module('urbanizationVisualizationApp')
         };
 
 
+
+        // update the color of the countries
+        function updateMap() {
+          countries.selectAll('path')
+            .attr('class', function(d) {
+              return 'category'+getScaleCategory(getValue(d.id,scope.display));
+            });
+        };
+
+
         //
-        function drawDetails(d) {
-          var c = d3.select('#country'+d.id);
-          var center = path.centroid(d); // get the center of the path
-          var x = center[0];
-          var y = center[1];
-          var width = 200;
-          var height = 120;
-          var line = 1; // line number
-          var fontSize = 12;
-          var fontColor = '#000000';
-          var lineHeight = fontSize+5;
-          //console.log(c.getBBox());
-
-          var countryDetails = details.append('g');
-
-          countryDetails.append('rect')
-            .attr('x', x)
-            .attr('y', y)
-            .attr('width', width)
-            .attr('height', height)
-            .attr('class', 'details');
-
+        //function drawDetails(d) {
+        function drawDetails() {
           // country name
-          countryDetails.append('text')
-            .attr('dx', x+5)
-            .attr('dy', y+(lineHeight*line))
-            .attr('style', 'fill: '+fontColor+'; stroke: none; font-size: '+fontSize+'px;')
+          details.append('text')
+            .attr('id', 'title')
+            .attr('class', 'title')
             .attr('text-anchor', 'start')
-            .text(getName(d.id));
+            .text('null');
 
           // total population
-          line++;
-          countryDetails.append('text')
-            .attr('dx', x+5)
-            .attr('dy', y+(lineHeight*line))
-            .attr('style', 'fill: '+fontColor+'; stroke: none; font-size: '+fontSize+'px;')
+          details.append('text')
+            .attr('id', 'pop')
             .attr('text-anchor', 'start')
-            .text('Total population: ' + getValue(d.id,'pop') + '');
+            .text('null');
 
           // urban population
-          line++;
-          countryDetails.append('text')
-            .attr('dx', x+5)
-            .attr('dy', y+(lineHeight*line))
-            .attr('style', 'fill: '+fontColor+'; stroke: none; font-size: '+fontSize+'px;')
+          details.append('text')
+            .attr('id', 'uPop')
             .attr('text-anchor', 'start')
-            .text('Urban population: ' + getValue(d.id,'uPop') + ' (' + getValue(d.id,'urbanization') + '%)');
+            .text('null');
 
           // urbanization population growth
-          line++;
-          countryDetails.append('text')
-            .attr('dx', x+5)
-            .attr('dy', y+(lineHeight*line))
-            .attr('style', 'fill: '+fontColor+'; stroke: none; font-size: '+fontSize+'px;')
+          details.append('text')
+            .attr('id', 'uGrowth')
             .attr('text-anchor', 'start')
-            .text('Change in urbanization rate: ' + getValue(d.id,'uGrowth') + '%');
+            .text('null');
 
           // urban population increase
-          line++;
-          countryDetails.append('text')
+          details.append('text')
+            .attr('id', 'uPopIncrease')
+            .attr('text-anchor', 'start')
+            .text('null');
+
+          details.attr('style','display: none;'); // hide the empty details
+
+        };
+
+
+        //
+        function updateDetails(id) {
+          var fontSize = width/65;
+          var lineHeight = fontSize+5;
+          var bottomMargin = fontSize;
+          //var widthDetails = 200;
+          var heightDetails = lineHeight*5+bottomMargin;
+          var x = 0; // x position of the details panel
+          var y = height - heightDetails; // y position of the details panel
+          var line = 1; // line number
+
+          // update country name
+          details.select('#title')
             .attr('dx', x+5)
             .attr('dy', y+(lineHeight*line))
-            .attr('style', 'fill: '+fontColor+'; stroke: none; font-size: '+fontSize+'px;')
-            .attr('text-anchor', 'start')
-            .text('Urban pop. increase: ' + getValue(d.id,'uPopIncrease') + '');
+            .attr('style', 'font-size: '+fontSize*1.2+'px;')
+            .text(getName(id));
 
+          // update total population
+          line++;
+          details.select('#pop')
+            .attr('dx', x+5)
+            .attr('dy', y+(lineHeight*line))
+            .attr('style', 'font-size: '+fontSize+'px;')
+            .text('Total population: ' + DotFormatted(getValue(id,'pop')*1000) + '');
+
+          // update urban population
+          line++;
+          details.select('#uPop')
+            .attr('dx', x+5)
+            .attr('dy', y+(lineHeight*line))
+            .attr('style', 'font-size: '+fontSize+'px;')
+            .text('Urban population: ' + DotFormatted(getValue(id,'uPop')*1000) + ' (' + getValue(id,'urbanization') + '%)');
+
+          // update urbanization population growth
+          line++;
+          details.select('#uGrowth')
+            .attr('dx', x+5)
+            .attr('dy', y+(lineHeight*line))
+            .attr('style', 'font-size: '+fontSize+'px;')
+            .text('Change in urbanization rate: ' + getValue(id,'uGrowth') + '%');
+
+          // update urban population increase
+          line++;
+          details.select('#uPopIncrease')
+            .attr('dx', x+5)
+            .attr('dy', y+(lineHeight*line))
+            .attr('style', 'font-size: '+fontSize+'px;')
+            .text('Urban pop. increase: ' + DotFormatted(getValue(id,'uPopIncrease')*1000) + '');
         };
 
 
@@ -308,6 +346,21 @@ angular.module('urbanizationVisualizationApp')
         };
 
 
+        // format number: 1203400 to 1.203.400
+        function DotFormatted(nStr) {
+          nStr += '';
+          var x = nStr.split('.');
+          var x1 = x[0];
+          var x2 = x.length > 1 ? '.' + x[1] : '';
+          var rgx = /(\d+)(\d{3})/;
+          while (rgx.test(x1)) {
+            x1 = x1.replace(rgx, '$1' + '.' + '$2');
+          }
+          return x1 + x2;
+        }
+
+
+
 
 
 
@@ -316,6 +369,11 @@ angular.module('urbanizationVisualizationApp')
         initMap();
 
         drawLoading();
+
+        drawMap();
+
+        drawDetails();
+
 
 
 
@@ -328,14 +386,16 @@ angular.module('urbanizationVisualizationApp')
         scope.$watch('dataset', function (value) {
           //console.log(value);
           if(value.length > 0) { // check if there is any data
-            drawMap();
+            //drawMap();
+            updateMap();
           }
         });
 
         scope.$watch('display', function (value) {
           //console.log(value);
           if(value.length > 0 && scope.dataset.length > 0) { 
-            drawMap();
+            //drawMap();
+            updateMap();
           }
         });
 
