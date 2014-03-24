@@ -8,6 +8,8 @@ angular.module('urbanizationVisualizationApp')
       restrict: 'E',
       scope: {
         dataset: '=dataset',
+        min: '=min', // minimum value of the dataset
+        max: '=max', // maximum value of the dataset
         display: '=display' // property of the data that needs to be projected on the map
       },
       replace: true,
@@ -17,20 +19,21 @@ angular.module('urbanizationVisualizationApp')
 
         /*
 
-        - min en max value van hele dataset nemen niet alleen per jaar???
-        
+    
         - legenda?
-        
+
         - zoom functie?????? >> hoe poitioneren van tooltip?
         
         - bij negatieve groei rood kleuren?
+
+        - wat gebeurd er als je een land hebt gesleecteerd en je wijzigd de data door op 1 van de knoppen te drukken
 
         */
 
 
 
         // declare map variables
-        var projection, svg, path, countries, loading, details, legend; 
+        var projection, svg, path, bg, countries, loading, details, legend; 
 
         // init map dimentions
         var margin = {top: 10, left: 10, bottom: 10, right: 10},
@@ -39,6 +42,8 @@ angular.module('urbanizationVisualizationApp')
             mapRatio = .45,
             height = width * mapRatio;
 
+        // init categories
+        var numberOfCategories = 6;
 
 
 
@@ -65,6 +70,7 @@ angular.module('urbanizationVisualizationApp')
         };
         
 
+        /*
         // returns the dimensions of the dataset
          function getDimensions() {
           var min = null,
@@ -78,6 +84,7 @@ angular.module('urbanizationVisualizationApp')
           }
           return {'min': min, 'max': max};
         };
+        */
 
 
         // returns the display value of the country
@@ -108,8 +115,8 @@ angular.module('urbanizationVisualizationApp')
         function getScaleCategory(value) {
           var returnValue = 0;
           var scale = d3.scale.linear()
-            .domain([getDimensions().min,getDimensions().max])
-            .range([1, 6]);
+            .domain([scope.min,scope.max])
+            .range([1, numberOfCategories]);
           returnValue = Math.round(scale(value));
           return returnValue;
         };
@@ -153,6 +160,7 @@ angular.module('urbanizationVisualizationApp')
             .projection(projection);
 
           // add groups
+          bg = svg.append('g'); // group that contains the map background
           countries = svg.append('g'); // group that contains all country paths
           details = svg.append('g') // group that contains the country details
             .attr('class', 'country-details');
@@ -168,6 +176,22 @@ angular.module('urbanizationVisualizationApp')
 
           // remove all countries that are already drawn
           countries.selectAll('path').remove();
+
+          //draw map background
+          bg.append('rect')
+            .attr('x', 0)
+            .attr('y', 0)
+            .attr('width', width)
+            .attr('height', height)
+            .attr('class', 'map-background')
+            .on("click", function(){
+              // remove selection when click on background
+              countries.select('.selected')
+                .attr('class', function(d) {
+                  return 'category'+getScaleCategory(getValue(d.id,scope.display));
+                });
+              details.attr('style','display: none;'); // hide country details
+            });
 
           // draw map
           d3.json('datasets/world-110m.json', function(error, topology) {
@@ -268,9 +292,10 @@ angular.module('urbanizationVisualizationApp')
 
         //
         function updateDetails(id) {
-          var fontSize = width/65;
+          var fontSize = width/70;
           var lineHeight = fontSize+5;
-          var bottomMargin = fontSize;
+          //var bottomMargin = fontSize*5;
+          var bottomMargin = fontSize*5;
           //var widthDetails = 200;
           var heightDetails = lineHeight*5+bottomMargin;
           var x = 0; // x position of the details panel
@@ -279,7 +304,7 @@ angular.module('urbanizationVisualizationApp')
 
           // update country name
           details.select('#title')
-            .attr('dx', x+5)
+            .attr('dx', x+margin.left)
             .attr('dy', y+(lineHeight*line))
             .attr('style', 'font-size: '+fontSize*1.2+'px;')
             .text(getName(id));
@@ -287,7 +312,7 @@ angular.module('urbanizationVisualizationApp')
           // update total population
           line++;
           details.select('#pop')
-            .attr('dx', x+5)
+            .attr('dx', x+margin.left)
             .attr('dy', y+(lineHeight*line))
             .attr('style', 'font-size: '+fontSize+'px;')
             .text('Total population: ' + DotFormatted(getValue(id,'pop')*1000) + '');
@@ -295,7 +320,7 @@ angular.module('urbanizationVisualizationApp')
           // update urban population
           line++;
           details.select('#uPop')
-            .attr('dx', x+5)
+            .attr('dx', x+margin.left)
             .attr('dy', y+(lineHeight*line))
             .attr('style', 'font-size: '+fontSize+'px;')
             .text('Urban population: ' + DotFormatted(getValue(id,'uPop')*1000) + ' (' + getValue(id,'urbanization') + '%)');
@@ -303,7 +328,7 @@ angular.module('urbanizationVisualizationApp')
           // update urbanization population growth
           line++;
           details.select('#uGrowth')
-            .attr('dx', x+5)
+            .attr('dx', x+margin.left)
             .attr('dy', y+(lineHeight*line))
             .attr('style', 'font-size: '+fontSize+'px;')
             .text('Change in urbanization rate: ' + getValue(id,'uGrowth') + '%');
@@ -311,7 +336,7 @@ angular.module('urbanizationVisualizationApp')
           // update urban population increase
           line++;
           details.select('#uPopIncrease')
-            .attr('dx', x+5)
+            .attr('dx', x+margin.left)
             .attr('dy', y+(lineHeight*line))
             .attr('style', 'font-size: '+fontSize+'px;')
             .text('Urban pop. increase: ' + DotFormatted(getValue(id,'uPopIncrease')*1000) + '');
@@ -320,6 +345,35 @@ angular.module('urbanizationVisualizationApp')
 
         //
         function drawLegend() {
+
+
+          // remove all legend elements that already exist
+          legend.selectAll('rect').remove();
+          
+
+
+          var legendSegmentWidth = width / 30,
+              legendSegmentHeight = height / 80,
+              range = scope.max - scope.min,
+              categoryRange = range/numberOfCategories;
+
+          console.log(range + ' min: ' + scope.min + ' max: ' + scope.max);
+          console.log(Math.ceil(scope.max)-Math.floor(scope.min) + ' min: ' + Math.floor(scope.min) + ' max: ' + Math.ceil(scope.max));
+          console.log(Math.ceil((Math.ceil(scope.max)-Math.floor(scope.min))/10)*10);
+          //console.log(categoryRange);
+          //console.log();
+
+          for (var i = 1; i < numberOfCategories+1; i++) {
+            legend.append('rect')
+            .attr('x',legendSegmentWidth*(i-1)+margin.left)
+            .attr('y', height - legendSegmentHeight)
+            .attr('width', legendSegmentWidth)
+            .attr('height', legendSegmentHeight)
+            .attr('class', 'category'+i);
+          };
+          
+
+
 
         };
 
@@ -371,6 +425,8 @@ angular.module('urbanizationVisualizationApp')
 
         drawDetails();
 
+        // drawLegend();
+
 
 
 
@@ -393,9 +449,17 @@ angular.module('urbanizationVisualizationApp')
           if(value.length > 0 && scope.dataset.length > 0) { 
             //drawMap();
             updateMap();
+            drawLegend();
           }
         });
 
+        scope.$watch('min', function (value) {
+          drawLegend();
+        });
+
+        scope.$watch('max', function (value) {
+          drawLegend();
+        });
 
 
       }

@@ -9,7 +9,9 @@ angular.module('urbanizationVisualizationApp')
     $scope.dataset = []; // complete dataset
     $scope.periodData = []; // data of the selected period
     $scope.errors = []; // array of errors
-    $scope.dataProperty = 'urbanization'; // default value
+    $scope.dataProperty = 'urbanization'; // default value, the property of the dataset that needs to be displayed on the map
+    $scope.min = 0; // minimum value of the periodData set
+    $scope.max = 0; // maximum  value of the periodData set
 
 
 
@@ -19,6 +21,8 @@ angular.module('urbanizationVisualizationApp')
 			  $scope.dataset = promise; // receive the dataset
 			  $scope.errors = validate($scope.dataset); // validate received data
 			  $scope.periodData = getPeriodData($scope.selectedPeriod, $scope.dataset); // get the data of the selected period
+			  $scope.min = getDimensions().min; // set the minimum value of the periodData
+			  $scope.max = getDimensions().max; // set the maximum value of the periodData
 			});
     };
 
@@ -34,7 +38,36 @@ angular.module('urbanizationVisualizationApp')
 		});
 
 
+  	// update min and max value if dataProperty changes
+		$scope.$watch('dataProperty', function (value) {
+		  $scope.min = getDimensions().min; // set the minimum value of the periodData
+		  $scope.max = getDimensions().max; // set the maximum value of the periodData
+		});
 
+
+
+		// set the data property
+		$scope.setDataProperty = function(value) {
+			$scope.dataProperty = value;
+		};
+
+
+    // returns the dimensions(min and max value) of the dataset
+    var getDimensions = function() {
+      var min = null,
+          max = null;
+
+			for (var i = $scope.dataset.length - 1; i >= 0; i--) {
+	      for (var j = $scope.dataset[i].data.length - 1; j >= 0; j--) {
+	        if($scope.dataset[i].data[j][$scope.dataProperty] !== null) {
+	          if($scope.dataset[i].data[j][$scope.dataProperty] < min || min === null) min = $scope.dataset[i].data[j][$scope.dataProperty];
+	          if($scope.dataset[i].data[j][$scope.dataProperty] > max || max === null) max = $scope.dataset[i].data[j][$scope.dataProperty];
+	        }
+	      }
+	    };
+
+      return {'min': min, 'max': max};
+    };
 
 
     // returns the data of the provided period

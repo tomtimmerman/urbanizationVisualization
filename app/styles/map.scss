@@ -5,7 +5,7 @@ path {
   fill: #a1a1a1;
 }
 
-path.selected {
+path.selected, path:hover {
 	stroke: red;
 	stroke-width: 1px;
 }
@@ -27,13 +27,23 @@ path.selected {
 }
 
 .category5 {
-	fill: #3182bd;	
+	fill: #4292c6;	
 }
 
 .category6 {
-	fill: #08519c;	
+	fill: #2171b5;	
 }
 
+.category7 {
+	fill: #084594;	
+}
+
+
+
+.map-background {
+	fill: #fff;
+	stroke: none;
+}
 
 
 
