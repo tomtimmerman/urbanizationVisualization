@@ -3,6 +3,25 @@
 angular.module('urbanizationVisualizationApp')
   .controller('MainCtrl', function ($scope, Dataset) {
 
+
+
+/*
+
+	timeline
+		play/pause knop
+		opmaak
+
+
+	switch parameter
+		bij wisselen uitleg text toevoegen naar welke info je it te kijken
+
+*/
+
+
+
+
+
+
 		// 
     $scope.periods = ['1950-1955','1955-1960','1960-1965','1965-1970','1970-1975','1975-1980','1980-1985','1985-1990','1990-1995','1995-2000','2000-2005','2005-2010','2010-2015','2015-2020','2020-2025','2025-2030','2030-2035','2035-2040','2040-2045','2045-2050'];
     $scope.selectedPeriod = $scope.periods[0];
@@ -10,8 +29,9 @@ angular.module('urbanizationVisualizationApp')
     $scope.periodData = []; // data of the selected period
     $scope.errors = []; // array of errors
     $scope.dataProperty = 'urbanization'; // default value, the property of the dataset that needs to be displayed on the map
-    $scope.min = 0; // minimum value of the periodData set
-    $scope.max = 0; // maximum  value of the periodData set
+    //$scope.min = 0; // minimum value of the periodData set
+    //$scope.max = 0; // maximum  value of the periodData set
+    $scope.scale = [];
 
 
 
@@ -21,8 +41,10 @@ angular.module('urbanizationVisualizationApp')
 			  $scope.dataset = promise; // receive the dataset
 			  $scope.errors = validate($scope.dataset); // validate received data
 			  $scope.periodData = getPeriodData($scope.selectedPeriod, $scope.dataset); // get the data of the selected period
-			  $scope.min = getDimensions().min; // set the minimum value of the periodData
-			  $scope.max = getDimensions().max; // set the maximum value of the periodData
+			  //$scope.min = getDimensions().min; // set the minimum value of the periodData
+			  //$scope.max = getDimensions().max; // set the maximum value of the periodData
+
+			  setScale();
 			});
     };
 
@@ -38,20 +60,40 @@ angular.module('urbanizationVisualizationApp')
 		});
 
 
+		/*
   	// update min and max value if dataProperty changes
 		$scope.$watch('dataProperty', function (value) {
 		  $scope.min = getDimensions().min; // set the minimum value of the periodData
 		  $scope.max = getDimensions().max; // set the maximum value of the periodData
 		});
+		*/
 
 
 
 		// set the data property
 		$scope.setDataProperty = function(value) {
 			$scope.dataProperty = value;
+			setScale();
 		};
 
 
+
+		var setScale = function() {
+			switch($scope.dataProperty) {
+				case 'urbanization':
+					$scope.scale = [{min: null, max: 20, label: '< 20%', color: '#eff3ff'},{min: 20, max: 40, label: '> 20%', color: '#bdd7e7'},{min: 40, max: 60, label: '> 40%', color: '#6baed6'},{min: 60, max: 80, label: '> 60%', color: '#3182bd'},{min: 80, max: null, label: '> 80%', color: '#08519c'}];
+					break;
+				case 'uGrowth':
+					$scope.scale = [{min: null, max: 0, label: '< 0%', color: '#fcae91'},{min: 0, max: 3, label: '> 0%', color: '#edf8e9'},{min: 3, max: 6, label: '> 3%', color: '#bae4b3'},{min: 6, max: 9, label: '> 6%', color: '#74c476'},{min: 9, max: 12, label: '> 9%', color: '#31a354'},{min: 12, max: null, label: '> 12%', color: '#006d2c'}];
+					break;
+				default:
+					//
+			}
+		};
+
+
+
+		/*
     // returns the dimensions(min and max value) of the dataset
     var getDimensions = function() {
       var min = null,
@@ -68,6 +110,7 @@ angular.module('urbanizationVisualizationApp')
 
       return {'min': min, 'max': max};
     };
+    */
 
 
     // returns the data of the provided period

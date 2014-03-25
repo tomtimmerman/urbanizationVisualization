@@ -10,36 +10,6 @@ path.selected, path:hover {
 	stroke-width: 1px;
 }
 
-.category1 {
-	fill: #eff3ff;	
-}
-
-.category2 {
-	fill: #c6dbef;	
-}
-
-.category3 {
-	fill: #9ecae1;	
-}
-
-.category4 {
-	fill: #6baed6;	
-}
-
-.category5 {
-	fill: #4292c6;	
-}
-
-.category6 {
-	fill: #2171b5;	
-}
-
-.category7 {
-	fill: #084594;	
-}
-
-
-
 .map-background {
 	fill: #fff;
 	stroke: none;
@@ -67,3 +37,12 @@ path.selected, path:hover {
 	}
 
 }
+
+
+/* legend */
+.legend-label {
+	fill: #5e686b;
+	stroke: none;
+}
+
+

@@ -8,8 +8,7 @@ angular.module('urbanizationVisualizationApp')
       restrict: 'E',
       scope: {
         dataset: '=dataset',
-        min: '=min', // minimum value of the dataset
-        max: '=max', // maximum value of the dataset
+        scale: '=scale', // 
         display: '=display' // property of the data that needs to be projected on the map
       },
       replace: true,
@@ -19,14 +18,9 @@ angular.module('urbanizationVisualizationApp')
 
         /*
 
-    
-        - legenda?
-
         - zoom functie?????? >> hoe poitioneren van tooltip?
         
         - bij negatieve groei rood kleuren?
-
-        - wat gebeurd er als je een land hebt gesleecteerd en je wijzigd de data door op 1 van de knoppen te drukken
 
         */
 
@@ -43,7 +37,7 @@ angular.module('urbanizationVisualizationApp')
             height = width * mapRatio;
 
         // init categories
-        var numberOfCategories = 6;
+        //var numberOfCategories = 6;
 
 
 
@@ -111,15 +105,33 @@ angular.module('urbanizationVisualizationApp')
         };
 
 
+        // return the color for the provided value
+        function getColor(value) {
+          var returnValue = '#a1a1a1';
+          for (var i = scope.scale.length - 1; i >= 0; i--) {
+            if(scope.scale[i].max === null && value >= scope.scale[i].min) returnValue = scope.scale[i].color;
+            if(scope.scale[i].max !== null && scope.scale[i].min !== null && value >= scope.scale[i].min && value < scope.scale[i].max) returnValue = scope.scale[i].color;
+            if(scope.scale[i].min === null && value < scope.scale[i].max) returnValue = scope.scale[i].color;
+          };
+          return returnValue;
+        };
+
+
+        /*
         // return the category of the provided value
         function getScaleCategory(value) {
           var returnValue = 0;
-          var scale = d3.scale.linear()
-            .domain([scope.min,scope.max])
-            .range([1, numberOfCategories]);
-          returnValue = Math.round(scale(value));
+          
+          for (var i = scope.scale.length - 1; i >= 0; i--) {
+            if(scope.scale[i].max === null && value >= scope.scale[i].min) returnValue = i;
+            if(scope.scale[i].max !== null && scope.scale[i].min !== null && value >= scope.scale[i].min && value < scope.scale[i].max) returnValue = i;
+            if(scope.scale[i].min === null && value < scope.scale[i].max) returnValue = i;
+          };
+          returnValue++;
+
           return returnValue;
         };
+        */
 
 
         // resize the svg map
@@ -140,7 +152,21 @@ angular.module('urbanizationVisualizationApp')
                 .style('height', height + 'px');
 
             // resize the map
-            svg.selectAll('path').attr('d', path);
+            svg.selectAll('path').attr('d', path); // resize paths
+
+            // resize map background
+            bg.selectAll('rect')
+              .attr('width', width)
+              .attr('height', height);
+
+            // resize country details
+            if(!countries.select('.selected').empty()) {
+              updateDetails(parseInt(countries.select('.selected').attr('id').replace('country',''))); // display details of selected country
+            }
+
+            //  resize legend
+            drawLegend();
+
         }
 
 
@@ -188,7 +214,8 @@ angular.module('urbanizationVisualizationApp')
               // remove selection when click on background
               countries.select('.selected')
                 .attr('class', function(d) {
-                  return 'category'+getScaleCategory(getValue(d.id,scope.display));
+                  //return 'category'+getScaleCategory(getValue(d.id,scope.display));
+                  return '';
                 });
               details.attr('style','display: none;'); // hide country details
             });
@@ -204,8 +231,13 @@ angular.module('urbanizationVisualizationApp')
                 .attr('id', function(d) {
                   return 'country'+d.id;
                 })
+                /*
                 .attr('class', function(d) {
                   return 'category'+getScaleCategory(getValue(d.id,scope.display));
+                })
+                */
+                .attr('style', function(d) {
+                  return 'fill: '+getColor(getValue(d.id,scope.display))+';';
                 })
                 .on("mouseover", function(d){
                   details.attr('style','display: inherit;');
@@ -223,13 +255,14 @@ angular.module('urbanizationVisualizationApp')
                   // remove existing selection
                   countries.select('.selected')
                     .attr('class', function(d) {
-                      return 'category'+getScaleCategory(getValue(d.id,scope.display));
+                      //return 'category'+getScaleCategory(getValue(d.id,scope.display));
+                      return '';
                     });
 
                   // add selected class
-                  var currentClass = countries.select('#country'+d.id).attr('class');
+                  //var currentClass = countries.select('#country'+d.id).attr('class');
                   countries.select('#country'+d.id)
-                    .attr('class', currentClass+' selected');
+                    .attr('class', 'selected');
 
                   // update details
                   updateDetails(d.id);
@@ -244,10 +277,22 @@ angular.module('urbanizationVisualizationApp')
 
         // update the color of the countries
         function updateMap() {
+          // show loading screen
+          loading.attr('style','display: inherit;');
+
+          // update countries
           countries.selectAll('path')
+            /*
             .attr('class', function(d) {
               return 'category'+getScaleCategory(getValue(d.id,scope.display));
             });
+            */
+            .attr('style', function(d) {
+              return 'fill: '+getColor(getValue(d.id,scope.display))+';';
+            })
+
+          // hide loading screen
+          loading.attr('style','display: none;');
         };
 
 
@@ -295,7 +340,7 @@ angular.module('urbanizationVisualizationApp')
           var fontSize = width/70;
           var lineHeight = fontSize+5;
           //var bottomMargin = fontSize*5;
-          var bottomMargin = fontSize*5;
+          var bottomMargin = fontSize+margin.bottom;
           //var widthDetails = 200;
           var heightDetails = lineHeight*5+bottomMargin;
           var x = 0; // x position of the details panel
@@ -345,36 +390,35 @@ angular.module('urbanizationVisualizationApp')
 
         //
         function drawLegend() {
-
-
           // remove all legend elements that already exist
           legend.selectAll('rect').remove();
-          
+          legend.selectAll('text').remove();
 
-
-          var legendSegmentWidth = width / 30,
+          // init
+          var legendSegmentWidth = width / 25,
               legendSegmentHeight = height / 80,
-              range = scope.max - scope.min,
-              categoryRange = range/numberOfCategories;
+              fontSize = width/95;
 
-          console.log(range + ' min: ' + scope.min + ' max: ' + scope.max);
-          console.log(Math.ceil(scope.max)-Math.floor(scope.min) + ' min: ' + Math.floor(scope.min) + ' max: ' + Math.ceil(scope.max));
-          console.log(Math.ceil((Math.ceil(scope.max)-Math.floor(scope.min))/10)*10);
-          //console.log(categoryRange);
-          //console.log();
-
-          for (var i = 1; i < numberOfCategories+1; i++) {
+          // draw legend
+          for (var i = 1; i < scope.scale.length+1; i++) {
+            // draw lagend segment
             legend.append('rect')
-            .attr('x',legendSegmentWidth*(i-1)+margin.left)
-            .attr('y', height - legendSegmentHeight)
-            .attr('width', legendSegmentWidth)
-            .attr('height', legendSegmentHeight)
-            .attr('class', 'category'+i);
+              .attr('x',legendSegmentWidth*(i-1)+((width/2)-(legendSegmentWidth*scope.scale.length/2)))
+              .attr('y', height - legendSegmentHeight - fontSize - margin.bottom)
+              .attr('width', legendSegmentWidth)
+              .attr('height', legendSegmentHeight)
+              .attr('style', 'fill:'+scope.scale[i-1].color+';');
+              //.attr('class', 'category'+i);
+
+            // draw segment label
+            legend.append('text')
+              .attr('dx', legendSegmentWidth*(i-1)+((width/2)-(legendSegmentWidth*scope.scale.length/2))  +legendSegmentWidth/2)
+              .attr('dy', height - margin.bottom)
+              .attr('text-anchor', 'middle')
+              .attr('style', 'font-size: '+fontSize+'px;')
+              .attr('class', 'legend-label')
+              .text(scope.scale[i-1].label);
           };
-          
-
-
-
         };
 
 
@@ -445,22 +489,33 @@ angular.module('urbanizationVisualizationApp')
         });
 
         scope.$watch('display', function (value) {
-          //console.log(value);
+          //
           if(value.length > 0 && scope.dataset.length > 0) { 
-            //drawMap();
+            // get the current selected country
+            var IdCurrentSelection = null;
+            if(!countries.select('.selected').empty()) { // check if a country is selected
+              IdCurrentSelection = parseInt(countries.select('.selected').attr('id').replace('country','')); // get the id of the current selected country
+            }
+
             updateMap();
             drawLegend();
+
+            // set the selected country
+            if(IdCurrentSelection !== null) { // if a country is selected
+              updateDetails(IdCurrentSelection); // set the country details
+
+              // add selected class
+              //var currentClass = countries.select('#country'+IdCurrentSelection).attr('class');
+              countries.select('#country'+IdCurrentSelection)
+                .attr('class', 'selected');
+            }
           }
         });
 
-        scope.$watch('min', function (value) {
+        scope.$watch('scale', function (value) {
+          updateMap();
           drawLegend();
         });
-
-        scope.$watch('max', function (value) {
-          drawLegend();
-        });
-
 
       }
     };
