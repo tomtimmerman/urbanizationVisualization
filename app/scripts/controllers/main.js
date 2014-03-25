@@ -12,9 +12,6 @@ angular.module('urbanizationVisualizationApp')
 		opmaak
 
 
-	switch parameter
-		bij wisselen uitleg text toevoegen naar welke info je it te kijken
-
 */
 
 
@@ -29,6 +26,7 @@ angular.module('urbanizationVisualizationApp')
     $scope.periodData = []; // data of the selected period
     $scope.errors = []; // array of errors
     $scope.dataProperty = 'urbanization'; // default value, the property of the dataset that needs to be displayed on the map
+    $scope.dataDescription = '';
     //$scope.min = 0; // minimum value of the periodData set
     //$scope.max = 0; // maximum  value of the periodData set
     $scope.scale = [];
@@ -45,6 +43,7 @@ angular.module('urbanizationVisualizationApp')
 			  //$scope.max = getDimensions().max; // set the maximum value of the periodData
 
 			  setScale();
+			  setDescription();
 			});
     };
 
@@ -74,6 +73,7 @@ angular.module('urbanizationVisualizationApp')
 		$scope.setDataProperty = function(value) {
 			$scope.dataProperty = value;
 			setScale();
+			setDescription();
 		};
 
 
@@ -85,6 +85,21 @@ angular.module('urbanizationVisualizationApp')
 					break;
 				case 'uGrowth':
 					$scope.scale = [{min: null, max: 0, label: '< 0%', color: '#fcae91'},{min: 0, max: 3, label: '> 0%', color: '#edf8e9'},{min: 3, max: 6, label: '> 3%', color: '#bae4b3'},{min: 6, max: 9, label: '> 6%', color: '#74c476'},{min: 9, max: 12, label: '> 9%', color: '#31a354'},{min: 12, max: null, label: '> 12%', color: '#006d2c'}];
+					break;
+				default:
+					//
+			}
+		};
+
+
+		// 
+		var setDescription = function() {
+			switch($scope.dataProperty) {
+				case 'urbanization':
+					$scope.dataDescription = 'omschrijving 1';
+					break;
+				case 'uGrowth':
+					$scope.dataDescription = 'omschrijving 2';
 					break;
 				default:
 					//

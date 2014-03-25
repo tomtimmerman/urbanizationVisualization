@@ -19,8 +19,6 @@ angular.module('urbanizationVisualizationApp')
         /*
 
         - zoom functie?????? >> hoe poitioneren van tooltip?
-        
-        - bij negatieve groei rood kleuren?
 
         */
 
