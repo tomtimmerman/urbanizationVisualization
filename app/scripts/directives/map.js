@@ -485,21 +485,31 @@ angular.module('urbanizationVisualizationApp')
           if(value.length > 0) { // check if there is any data
             //drawMap();
             updateMap();
+
+            // update country details
+            if(!countries.select('.selected').empty()) { // check if a country is selected
+              updateDetails(parseInt(countries.select('.selected').attr('id').replace('country',''))); // update country details
+            }
+            
           }
         });
 
         scope.$watch('display', function (value) {
           //
           if(value.length > 0 && scope.dataset.length > 0) { 
+
+            /*
             // get the current selected country
             var IdCurrentSelection = null;
             if(!countries.select('.selected').empty()) { // check if a country is selected
               IdCurrentSelection = parseInt(countries.select('.selected').attr('id').replace('country','')); // get the id of the current selected country
             }
+            */
 
             updateMap();
             drawLegend();
 
+            /*
             // set the selected country
             if(IdCurrentSelection !== null) { // if a country is selected
               updateDetails(IdCurrentSelection); // set the country details
@@ -509,6 +519,9 @@ angular.module('urbanizationVisualizationApp')
               countries.select('#country'+IdCurrentSelection)
                 .attr('class', 'selected');
             }
+            */
+
+
           }
         });
 
