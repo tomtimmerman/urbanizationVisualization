@@ -19,9 +19,13 @@ angular.module('urbanizationVisualizationApp')
 
 
 
-		// 
-    $scope.periods = ['1950-1955','1955-1960','1960-1965','1965-1970','1970-1975','1975-1980','1980-1985','1985-1990','1990-1995','1995-2000','2000-2005','2005-2010','2010-2015','2015-2020','2020-2025','2025-2030','2030-2035','2035-2040','2040-2045','2045-2050'];
-    $scope.selectedPeriod = $scope.periods[0];
+		//
+		$scope.startDate = 1950; // the start year of the timeline
+		$scope.endDate = 2050; // the end year of the timeline
+		$scope.periodLength = 5; // 
+		$scope.selectedPeriod = '1950-1955';
+    //$scope.periods = ['1950-1955','1955-1960','1960-1965','1965-1970','1970-1975','1975-1980','1980-1985','1985-1990','1990-1995','1995-2000','2000-2005','2005-2010','2010-2015','2015-2020','2020-2025','2025-2030','2030-2035','2035-2040','2040-2045','2045-2050'];
+    //$scope.selectedPeriod = $scope.periods[0];
     $scope.dataset = []; // complete dataset
     $scope.periodData = []; // data of the selected period
     $scope.errors = []; // array of errors
@@ -96,10 +100,10 @@ angular.module('urbanizationVisualizationApp')
 		var setDescription = function() {
 			switch($scope.dataProperty) {
 				case 'urbanization':
-					$scope.dataDescription = 'omschrijving 1';
+					$scope.dataDescription = 'The percentage of people that live in urban areas.';
 					break;
 				case 'uGrowth':
-					$scope.dataDescription = 'omschrijving 2';
+					$scope.dataDescription = 'The increase or decrease of the urban population.';
 					break;
 				default:
 					//

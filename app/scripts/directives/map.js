@@ -20,6 +20,10 @@ angular.module('urbanizationVisualizationApp')
 
         - zoom functie?????? >> hoe poitioneren van tooltip?
 
+        - animaties toevoegen
+          - change color
+          - show/hide details
+
         */
 
 
@@ -239,6 +243,7 @@ angular.module('urbanizationVisualizationApp')
                 })
                 .on("mouseover", function(d){
                   details.attr('style','display: inherit;');
+                  //details.transition().duration(1000).attr('style','display: inherit;');
                   updateDetails(d.id);
                 })
                 .on("mouseout", function(d){
@@ -285,6 +290,10 @@ angular.module('urbanizationVisualizationApp')
               return 'category'+getScaleCategory(getValue(d.id,scope.display));
             });
             */
+            //.transition()
+            //.ease('elastic')
+            //.duration(1000)
+            //.delay(100)
             .attr('style', function(d) {
               return 'fill: '+getColor(getValue(d.id,scope.display))+';';
             })

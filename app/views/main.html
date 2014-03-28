@@ -14,12 +14,13 @@
       <button type="button" ng-click="setDataProperty('urbanization')" class="btn btn-default btn-xs" ng-class="{active: dataProperty=='urbanization'}">Percentage of people living in urban area</button>
       <button type="button" ng-click="setDataProperty('uGrowth')" class="btn btn-default btn-xs" ng-class="{active: dataProperty=='uGrowth'}">Change in urbanization rate</button>
     </div>
-    <p>{{dataDescription}}</p>
+    <p class="description">{{dataDescription}}</p>
   </div>
 
 
   <div class="col-lg-12">
-    <timeline periods=periods at=selectedPeriod></timeline>
+    <!--<timeline periods=periods at=selectedPeriod></timeline>-->
+    <timeline startdate=startDate enddate=endDate periodlength=periodLength selectedperiod=selectedPeriod></timeline>
     <map dataset=periodData display=dataProperty min=min max=max scale=scale></map>
   </div>
 

@@ -1,14 +1,34 @@
 
-<div class="timeline">
-	
-	<ul class="line">
-		<li ng-repeat="period in periods" style="width:{{100/periods.length}}%" ng-class="{selected: $index==selectedIndex}" ng-click="select(period)"></li>
-	</ul>
 
-	<ul class="labels">
-		<li ng-repeat="period in periods" style="width:{{100/periods.length}}%" ng-click="select(period)">{{period}}</li>
-	</ul>
 
-	<span class="clearfix"></span>
+<div class="timeline-wrapper">
+
+	<div class="controls" ng-click="play()">
+		<button type="button" class="btn btn-default btn-xs">
+		  <span class="glyphicon glyphicon-play"></span>
+		</button>
+	</div>
+
+
+
+	<div class="timeline">
+
+    <div class="periods">
+      <div ng-repeat="period in periods" class="period" style="left:{{(($index)*100/years.length)+(100/years.length/2)}}%; width:{{100/(years.length+1)}}%;" ng-click="select(period)" ng-class="{selected: period==selectedPeriod}"></div>
+    </div>
+
+    <!--
+    <div class="ticks">
+        <div ng-repeat="year in years" class="tick" style="left:{{(($index)*100/years.length)+(100/years.length/2)}}%;"></div>
+    </div> 
+	-->
+
+    <div class="labels">
+      <div ng-repeat="year in years" class="label" style="left:{{($index)*100/years.length}}%; width:{{100/(years.length+1)}}%;">{{year}}</div>
+    </div>
+
+  </div>
+
+  <div class="clear"></div>
 
 </div>
