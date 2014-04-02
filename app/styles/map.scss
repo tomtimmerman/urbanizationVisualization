@@ -1,7 +1,8 @@
 
 path {
-  stroke: white;
+  stroke: #535353;
   stroke-width: 0.25px;
+  /*stroke: none;*/
   fill: #a1a1a1;
 }
 
@@ -11,11 +12,9 @@ path.selected, path:hover {
 }
 
 .map-background {
-	fill: #fff;
+	fill: transparent;
 	stroke: none;
 }
-
-
 
 /* loading screen */
 .loading-background {
@@ -24,24 +23,23 @@ path.selected, path:hover {
   stroke-width: 0;
 }
 
-
 /* country details */
 .country-details {
 	text {
-		fill: #5e686b;
+		fill: #f1f1f1;
 		stroke: none;
 	}
 
 	.title {
 		font-weight: bold;
+		fill: #97a6a9;
 	}
 
 }
 
-
 /* legend */
 .legend-label {
-	fill: #5e686b;
+	fill: #f1f1f1;
 	stroke: none;
 }
 

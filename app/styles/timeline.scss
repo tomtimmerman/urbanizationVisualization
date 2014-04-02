@@ -36,7 +36,7 @@
   text-align:center;
   margin:0.5em 0 0 0;
   padding:0;
-  color: #5e686b;
+  color: #f1f1f1;
 }
 
 .ticks {
@@ -98,8 +98,43 @@
     display: inline-block;
   }
 
+  .controls {
+    width: 7%;
+  }
+
+  .timeline {
+    width: 93%;
+  }
+
 }
 
+@media (max-width: 480px) {
+  .controls {
+    width: 10%;
+  }
 
+  .timeline {
+    width: 90%;
+  }
+}
 
+@media (min-width: 700px) {
+  .controls {
+    width: 5%;
+  }
+
+  .timeline {
+    width: 95%;
+  }
+}
+
+@media (min-width: 990px) {
+  .controls {
+    width: 3%;
+  }
+
+  .timeline {
+    width: 97%;
+  }
+}
 

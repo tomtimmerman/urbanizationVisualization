@@ -13,23 +13,8 @@ angular.module('urbanizationVisualizationApp')
       },
       replace: true,
       link: function (scope, element) {
-        //element.text('this is the map directive');
-
-
-        /*
-
-        - zoom functie?????? >> hoe poitioneren van tooltip?
-
-        - animaties toevoegen
-          - change color
-          - show/hide details
-
-        */
-
-
-
         // declare map variables
-        var projection, svg, path, bg, countries, loading, details, legend; 
+        var projection, svg, path, bg, countries, loading, details, legend;
 
         // init map dimentions
         var margin = {top: 10, left: 10, bottom: 10, right: 10},
@@ -38,12 +23,8 @@ angular.module('urbanizationVisualizationApp')
             mapRatio = .45,
             height = width * mapRatio;
 
-        // init categories
-        //var numberOfCategories = 6;
 
-
-
-        //
+        // initialiation
         scope.init = function() {
           var error = [];
 
@@ -66,23 +47,6 @@ angular.module('urbanizationVisualizationApp')
         };
         
 
-        /*
-        // returns the dimensions of the dataset
-         function getDimensions() {
-          var min = null,
-              max = null;
-
-          for (var i = scope.dataset.length - 1; i >= 0; i--) {
-            if(scope.dataset[i][scope.display] !== null) {
-              if(scope.dataset[i][scope.display] < min || min === null) min = scope.dataset[i][scope.display];
-              if(scope.dataset[i][scope.display] > max || max === null) max = scope.dataset[i][scope.display];
-            }
-          }
-          return {'min': min, 'max': max};
-        };
-        */
-
-
         // returns the display value of the country
         function getValue(id, type) { // id is country id
           var returnValue = null;
@@ -92,7 +56,7 @@ angular.module('urbanizationVisualizationApp')
             }
           }
           return returnValue;
-        };
+        }
 
 
         // returns the name of the country
@@ -104,75 +68,57 @@ angular.module('urbanizationVisualizationApp')
             }
           }
           return returnValue;
-        };
+        }
 
 
         // return the color for the provided value
         function getColor(value) {
           var returnValue = '#a1a1a1';
           for (var i = scope.scale.length - 1; i >= 0; i--) {
-            if(scope.scale[i].max === null && value >= scope.scale[i].min) returnValue = scope.scale[i].color;
-            if(scope.scale[i].max !== null && scope.scale[i].min !== null && value >= scope.scale[i].min && value < scope.scale[i].max) returnValue = scope.scale[i].color;
-            if(scope.scale[i].min === null && value < scope.scale[i].max) returnValue = scope.scale[i].color;
-          };
+            if(scope.scale[i].max === null && value >= scope.scale[i].min) {returnValue = scope.scale[i].color;}
+            if(scope.scale[i].max !== null && scope.scale[i].min !== null && value >= scope.scale[i].min && value < scope.scale[i].max) {returnValue = scope.scale[i].color;}
+            if(scope.scale[i].min === null && value < scope.scale[i].max) {returnValue = scope.scale[i].color;}
+          }
           return returnValue;
-        };
-
-
-        /*
-        // return the category of the provided value
-        function getScaleCategory(value) {
-          var returnValue = 0;
-          
-          for (var i = scope.scale.length - 1; i >= 0; i--) {
-            if(scope.scale[i].max === null && value >= scope.scale[i].min) returnValue = i;
-            if(scope.scale[i].max !== null && scope.scale[i].min !== null && value >= scope.scale[i].min && value < scope.scale[i].max) returnValue = i;
-            if(scope.scale[i].min === null && value < scope.scale[i].max) returnValue = i;
-          };
-          returnValue++;
-
-          return returnValue;
-        };
-        */
+        }
 
 
         // resize the svg map
         function resize() {
-            // adjust things when the window size changes
-            width = parseInt(d3.select('#map').style('width'));
-            width = width - margin.left - margin.right;
-            height = width * mapRatio;
+          // adjust things when the window size changes
+          width = parseInt(d3.select('#map').style('width'));
+          width = width - margin.left - margin.right;
+          height = width * mapRatio;
 
-            // update projection
-            projection
-                .translate([width / 2, height / 2])
-                .scale(width/6.2);
+          // update projection
+          projection
+              .translate([width / 2, height / 2])
+              .scale(width/6.2);
 
-            // resize the map container
-            svg
-                .style('width', width + 'px')
-                .style('height', height + 'px');
+          // resize the map container
+          svg
+              .style('width', width + 'px')
+              .style('height', height + 'px');
 
-            // resize the map
-            svg.selectAll('path').attr('d', path); // resize paths
+          // resize the map
+          svg.selectAll('path').attr('d', path); // resize paths
 
-            // resize map background
-            bg.selectAll('rect')
-              .attr('width', width)
-              .attr('height', height);
+          // resize map background
+          bg.selectAll('rect')
+            .attr('width', width)
+            .attr('height', height);
 
-            // resize country details
-            if(!countries.select('.selected').empty()) {
-              updateDetails(parseInt(countries.select('.selected').attr('id').replace('country',''))); // display details of selected country
-            }
+          // resize country details
+          if(!countries.select('.selected').empty()) {
+            updateDetails(parseInt(countries.select('.selected').attr('id').replace('country',''))); // display details of selected country
+          }
 
-            //  resize legend
-            drawLegend();
-
+          //  resize legend
+          drawLegend();
         }
 
 
-        //
+        // init map
         function initMap() {
           projection = d3.geo.equirectangular()
             .center([6,17])
@@ -194,29 +140,28 @@ angular.module('urbanizationVisualizationApp')
             .attr('class', 'country-details');
           legend = svg.append('g'); // group that contains the legend
           loading = svg.append('g'); // group that contains the loading screen
-        };
+        }
 
 
-        //
-        function drawMap() {  
+        // draw the map
+        function drawMap() {
           // show loading screen
           loading.attr('style','display: inherit;');
 
           // remove all countries that are already drawn
           countries.selectAll('path').remove();
 
-          //draw map background
+          // draw map background
           bg.append('rect')
             .attr('x', 0)
             .attr('y', 0)
             .attr('width', width)
             .attr('height', height)
             .attr('class', 'map-background')
-            .on("click", function(){
+            .on('click', function(){
               // remove selection when click on background
               countries.select('.selected')
                 .attr('class', function(d) {
-                  //return 'category'+getScaleCategory(getValue(d.id,scope.display));
                   return '';
                 });
               details.attr('style','display: none;'); // hide country details
@@ -233,20 +178,14 @@ angular.module('urbanizationVisualizationApp')
                 .attr('id', function(d) {
                   return 'country'+d.id;
                 })
-                /*
-                .attr('class', function(d) {
-                  return 'category'+getScaleCategory(getValue(d.id,scope.display));
-                })
-                */
                 .attr('style', function(d) {
                   return 'fill: '+getColor(getValue(d.id,scope.display))+';';
                 })
-                .on("mouseover", function(d){
+                .on('mouseover', function(d){
                   details.attr('style','display: inherit;');
-                  //details.transition().duration(1000).attr('style','display: inherit;');
                   updateDetails(d.id);
                 })
-                .on("mouseout", function(d){
+                .on('mouseout', function(d){
                   // check if a country was selected
                   if(countries.select('.selected').empty()) {
                     details.attr('style','display: none;'); // no country was selected
@@ -254,16 +193,14 @@ angular.module('urbanizationVisualizationApp')
                     updateDetails(parseInt(countries.select('.selected').attr('id').replace('country',''))); // display details of selected country
                   }
                 })
-                .on("click", function(d){
+                .on('click', function(d){
                   // remove existing selection
                   countries.select('.selected')
                     .attr('class', function(d) {
-                      //return 'category'+getScaleCategory(getValue(d.id,scope.display));
                       return '';
                     });
 
                   // add selected class
-                  //var currentClass = countries.select('#country'+d.id).attr('class');
                   countries.select('#country'+d.id)
                     .attr('class', 'selected');
 
@@ -274,8 +211,7 @@ angular.module('urbanizationVisualizationApp')
 
           // hide loading screen
           loading.attr('style','display: none;');
-        };
-
+        }
 
 
         // update the color of the countries
@@ -285,26 +221,16 @@ angular.module('urbanizationVisualizationApp')
 
           // update countries
           countries.selectAll('path')
-            /*
-            .attr('class', function(d) {
-              return 'category'+getScaleCategory(getValue(d.id,scope.display));
-            });
-            */
-            //.transition()
-            //.ease('elastic')
-            //.duration(1000)
-            //.delay(100)
             .attr('style', function(d) {
               return 'fill: '+getColor(getValue(d.id,scope.display))+';';
-            })
+            });
 
           // hide loading screen
           loading.attr('style','display: none;');
-        };
+        }
 
 
-        //
-        //function drawDetails(d) {
+        // draw country details
         function drawDetails() {
           // country name
           details.append('text')
@@ -339,16 +265,14 @@ angular.module('urbanizationVisualizationApp')
 
           details.attr('style','display: none;'); // hide the empty details
 
-        };
+        }
 
 
         //
         function updateDetails(id) {
           var fontSize = width/70;
           var lineHeight = fontSize+5;
-          //var bottomMargin = fontSize*5;
           var bottomMargin = fontSize+margin.bottom;
-          //var widthDetails = 200;
           var heightDetails = lineHeight*5+bottomMargin;
           var x = 0; // x position of the details panel
           var y = height - heightDetails; // y position of the details panel
@@ -383,7 +307,7 @@ angular.module('urbanizationVisualizationApp')
             .attr('dx', x+margin.left)
             .attr('dy', y+(lineHeight*line))
             .attr('style', 'font-size: '+fontSize+'px;')
-            .text('Change in urbanization rate: ' + getValue(id,'uGrowth') + '%');
+            .text('Urban growth rate: ' + getValue(id,'uGrowth') + '%');
 
           // update urban population increase
           line++;
@@ -392,10 +316,10 @@ angular.module('urbanizationVisualizationApp')
             .attr('dy', y+(lineHeight*line))
             .attr('style', 'font-size: '+fontSize+'px;')
             .text('Urban pop. increase: ' + DotFormatted(getValue(id,'uPopIncrease')*1000) + '');
-        };
+        }
 
 
-        //
+        // draw the legend
         function drawLegend() {
           // remove all legend elements that already exist
           legend.selectAll('rect').remove();
@@ -425,14 +349,14 @@ angular.module('urbanizationVisualizationApp')
               .attr('style', 'font-size: '+fontSize+'px;')
               .attr('class', 'legend-label')
               .text(scope.scale[i-1].label);
-          };
-        };
+          }
+        }
 
 
-        //
+        // loading screen
         function drawLoading() {
           // draw background rectangle
-          var rectangle = loading.append('rect')
+          loading.append('rect')
             .attr('x', 0)
             .attr('y', 0)
             .attr('width', width)
@@ -440,12 +364,12 @@ angular.module('urbanizationVisualizationApp')
             .attr('class', 'loading-background');
 
           // draw loading text
-          var text = loading.append('text')
+          loading.append('text')
             .attr('dx', width/2)
             .attr('dy', height/2)
             .attr('text-anchor', 'middle')
             .text('loading...');
-        };
+        }
 
 
         // format number: 1203400 to 1.203.400
@@ -463,34 +387,25 @@ angular.module('urbanizationVisualizationApp')
 
 
 
-
-
-
+        // run functions onload
         scope.init();
-
         initMap();
-
         drawLoading();
-
         drawMap();
-
         drawDetails();
-
         // drawLegend();
 
 
 
-
-        
         /*
         EVENTS
         */
+        // resize
         d3.select(window).on('resize', resize); //  on resize window event, resize the svg map
 
+        // change dataset
         scope.$watch('dataset', function (value) {
-          //console.log(value);
           if(value.length > 0) { // check if there is any data
-            //drawMap();
             updateMap();
 
             // update country details
@@ -501,38 +416,17 @@ angular.module('urbanizationVisualizationApp')
           }
         });
 
+        // change display
         scope.$watch('display', function (value) {
           //
-          if(value.length > 0 && scope.dataset.length > 0) { 
-
-            /*
-            // get the current selected country
-            var IdCurrentSelection = null;
-            if(!countries.select('.selected').empty()) { // check if a country is selected
-              IdCurrentSelection = parseInt(countries.select('.selected').attr('id').replace('country','')); // get the id of the current selected country
-            }
-            */
-
+          if(value.length > 0 && scope.dataset.length > 0) {
             updateMap();
             drawLegend();
-
-            /*
-            // set the selected country
-            if(IdCurrentSelection !== null) { // if a country is selected
-              updateDetails(IdCurrentSelection); // set the country details
-
-              // add selected class
-              //var currentClass = countries.select('#country'+IdCurrentSelection).attr('class');
-              countries.select('#country'+IdCurrentSelection)
-                .attr('class', 'selected');
-            }
-            */
-
-
           }
         });
 
-        scope.$watch('scale', function (value) {
+        // change scale
+        scope.$watch('scale', function () {
           updateMap();
           drawLegend();
         });
